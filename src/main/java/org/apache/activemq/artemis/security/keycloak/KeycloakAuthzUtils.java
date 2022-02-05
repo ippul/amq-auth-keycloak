@@ -154,16 +154,11 @@ public class KeycloakAuthzUtils {
         return null;
     }
 
-    public static Function<Configuration, Configuration> buildConfigurationWithCustomHttpClient = (configuration) -> {
-        if("true".equals(System.getenv().getOrDefault("trust.self.signed.certificates", "true"))) {
-            return new Configuration(configuration.getAuthServerUrl(),
-                    configuration.getRealm(),
-                    configuration.getResource(),
-                    configuration.getCredentials(),
-                    getHttpClient(configuration.getAuthServerUrl()));
-        }
-        return configuration;
-    };
+    public static Function<Configuration, Configuration> buildConfigurationWithCustomHttpClient = (configuration) -> new Configuration(configuration.getAuthServerUrl(),
+            configuration.getRealm(),
+            configuration.getResource(),
+            configuration.getCredentials(),
+            getHttpClient(configuration.getAuthServerUrl()));
 
     public static Certificate[] getCertificates(final String host) throws IOException {
         TrustManager[] trustAllCerts = new TrustManager[] {
