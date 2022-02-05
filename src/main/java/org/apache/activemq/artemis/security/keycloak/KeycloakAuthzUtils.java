@@ -155,7 +155,7 @@ public class KeycloakAuthzUtils {
     }
 
     public static Function<Configuration, Configuration> buildConfigurationWithCustomHttpClient = (configuration) -> {
-        if("true".equals(System.getenv("trust.self.signed.certificates"))) {
+        if("true".equals(System.getenv().getOrDefault("trust.self.signed.certificates", "true"))) {
             return new Configuration(configuration.getAuthServerUrl(),
                     configuration.getRealm(),
                     configuration.getResource(),
