@@ -1,4 +1,4 @@
-package com.redhat.amq.security.plugin;
+package org.apache.activemq.artemis.security.keycloak.plugin;
 
 import java.util.Map;
 import java.util.Set;
@@ -13,9 +13,9 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AMQRedHatSSOSecuritySettingPlugin implements SecuritySettingPlugin {
+public class KeycloakSecuritySettingPlugin implements SecuritySettingPlugin {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AMQRedHatSSOSecuritySettingPlugin.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KeycloakSecuritySettingPlugin.class);
 
     private HierarchicalRepository<Set<Role>> securityRepository;
 
@@ -23,31 +23,31 @@ public class AMQRedHatSSOSecuritySettingPlugin implements SecuritySettingPlugin 
 
     private ScheduledFuture<?> scheduledFuture;
 
-    private AMQRedHatSSOIntegrationUtils redHatSSOUtils;
+    private KeycloakDestinationUtils redHatSSOUtils;
 
     @Override
     public Map<String, Set<Role>> getSecurityRoles() {
-        LOGGER.info("Loading securityRoles getSecurityRoles");
+        LOGGER.info("Loading Destinations security settings from Keycloak");
         Map<String, Set<Role>> allResources = redHatSSOUtils.getSecurityRoles();
-        LOGGER.info("Found {} between queues and topics", (allResources != null ? allResources.keySet().size() : 0));
+        LOGGER.info("Found {} Destinations security settings on Keycloak", (allResources != null ? allResources.keySet().size() : 0));
         return allResources;
     }
 
     @Override
-    public AMQRedHatSSOSecuritySettingPlugin init(Map<String, String> options) {
+    public KeycloakSecuritySettingPlugin init(Map<String, String> options) {
         final Integer configurationRefreshStartDelay = Integer.valueOf(options.getOrDefault("configurationRefreshStartDelay", "120"));
         final Integer configurationRefreshInterval = Integer.valueOf(options.getOrDefault("configurationRefreshInterval", "30"));
-        redHatSSOUtils = new AMQRedHatSSOIntegrationUtils();
+        redHatSSOUtils = new KeycloakDestinationUtils();
         scheduledFuture = scheduler.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
-                LOGGER.info("Start Red Hat SSO authorization update");
+                LOGGER.debug("Start Keycloak security settings data refresh");
                 try {
                     redHatSSOUtils.checkAndApplyConfigurationsUpdate(securityRepository);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                LOGGER.info("End Red Hat SSO authorization update");
+                LOGGER.debug("End Keycloak security settings data refresh");
             }
         }, configurationRefreshStartDelay, configurationRefreshInterval, TimeUnit.SECONDS);
         return this;
@@ -63,6 +63,5 @@ public class AMQRedHatSSOSecuritySettingPlugin implements SecuritySettingPlugin 
         scheduledFuture.cancel(false);
         scheduler.shutdown();
         return this;
-    }
-
+    }    
 }

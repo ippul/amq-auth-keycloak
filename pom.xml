@@ -1,13 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.redhat.example.amq</groupId>
-  <artifactId>amq-sso-auth-plugin</artifactId>
+  <groupId>org.apache.activemq</groupId>
+  <artifactId>keycloak-authz-amq-security</artifactId>
   <version>1.0.0</version>
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>5.6.0</junit.version>
+    <version.org.keycloak>12.0.3</version.org.keycloak>
+    <version.org.apache.httpcomponents>4.5.13</version.org.apache.httpcomponents>
   </properties>
 
   <dependencyManagement>
@@ -16,6 +18,13 @@
         <groupId>org.keycloak.bom</groupId>
         <artifactId>keycloak-adapter-bom</artifactId>
         <version>15.0.2.redhat-00001</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.activemq</groupId>
+        <artifactId>artemis-pom</artifactId>
+        <version>2.18.0.redhat-00015</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -36,20 +45,195 @@
       <artifactId>keycloak-authz-client</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-admin-client</artifactId>
+      <version>15.0.2.redhat-00001</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>artemis-server</artifactId>
-      <version>2.18.0.redhat-00010</version>
+      <version>2.18.0.redhat-00015</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.7</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.7</version>
+      <groupId>org.jboss.slf4j</groupId>
+      <artifactId>slf4j-jboss-logmanager</artifactId>
+      <scope>provided</scope>
     </dependency>
+    <!-- Test dependencies -->
+<!--    <dependency>-->
+<!--      <groupId>io.cucumber</groupId>-->
+<!--      <artifactId>cucumber-junit</artifactId>-->
+<!--      <version>7.1.0</version>-->
+<!--      <scope>test</scope>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>io.cucumber</groupId>-->
+<!--      <artifactId>cucumber-java8</artifactId>-->
+<!--      <version>7.1.0</version>-->
+<!--      <scope>test</scope>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>io.cucumber</groupId>-->
+<!--      <artifactId>cucumber-guice</artifactId>-->
+<!--      <version>7.1.0</version>-->
+<!--      <scope>test</scope>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>com.google.inject</groupId>-->
+<!--      <artifactId>guice</artifactId>-->
+<!--      <version>4.0.0.redhat-2</version>-->
+<!--      <scope>test</scope>-->
+<!--    </dependency>-->
   </dependencies>
+<!--  <build>-->
+<!--    <plugins>-->
+<!--      <plugin>-->
+<!--        <groupId>com.googlecode.maven-download-plugin</groupId>-->
+<!--        <artifactId>download-maven-plugin</artifactId>-->
+<!--        <version>1.6.1</version>-->
+<!--        <executions>-->
+<!--          <execution>-->
+<!--            <id>install-keycloak</id>-->
+<!--            <phase>pre-integration-test</phase>-->
+<!--            <goals>-->
+<!--              <goal>wget</goal>-->
+<!--            </goals>-->
+<!--            <configuration>-->
+<!--              <url>https://github.com/keycloak/keycloak/releases/download/${version.org.keycloak}/keycloak-${version.org.keycloak}.tar.gz</url>-->
+<!--              <unpack>true</unpack>-->
+<!--              <overwrite>false</overwrite>-->
+<!--              <skip>${noServer}</skip>-->
+<!--            </configuration>-->
+<!--          </execution>-->
+<!--        </executions>-->
+<!--      </plugin>-->
+<!--      <plugin>-->
+<!--        <groupId>org.apache.activemq</groupId>-->
+<!--        <artifactId>artemis-maven-plugin</artifactId>-->
+<!--        <executions>-->
+<!--          <execution>-->
+<!--            <id>create</id>-->
+<!--            <phase>pre-integration-test</phase>-->
+<!--            <goals>-->
+<!--              <goal>create</goal>-->
+<!--            </goals>-->
+<!--            <configuration>-->
+<!--              <ignore>${noServer}</ignore>-->
+<!--              <noWeb>false</noWeb>-->
+<!--              &lt;!&ndash; enable keycloak for hawtio via system property overrides, note use of "console" realm in login.config &ndash;&gt;-->
+<!--              <javaOptions>-Dhawtio.keycloakEnabled=true -Dhawtio.keycloakClientConfig=${ARTEMIS_INSTANCE_ETC_URI}keycloak-js-client.json -Dhawtio.authenticationEnabled=true -Dhawtio.realm=console</javaOptions>-->
+<!--              <libListWithDeps>-->
+<!--                &lt;!&ndash; allow keycloak login module classloading from the artemis lib dir&ndash;&gt;-->
+<!--                <arg>org.keycloak:keycloak-adapter-core:jar:${version.org.keycloak}</arg>-->
+<!--                <arg>org.keycloak:keycloak-core:jar:${version.org.keycloak}</arg>-->
+<!--                <arg>org.apache.httpcomponents:httpclient:jar:${version.org.apache.httpcomponents}</arg>-->
+<!--              </libListWithDeps>-->
+<!--            </configuration>-->
+<!--          </execution>-->
+<!--          <execution>-->
+<!--            <id>start</id>-->
+<!--            <goals>-->
+<!--              <goal>cli</goal>-->
+<!--            </goals>-->
+<!--            <configuration>-->
+<!--              <ignore>${noServer}</ignore>-->
+<!--              <spawn>true</spawn>-->
+<!--              <args>-->
+<!--                <param>run</param>-->
+<!--              </args>-->
+<!--            </configuration>-->
+<!--          </execution>-->
+<!--          <execution>-->
+<!--            <id>runClient</id>-->
+<!--            <phase>verify</phase>-->
+<!--            <goals>-->
+<!--              <goal>runClient</goal>-->
+<!--            </goals>-->
+<!--            &lt;!&ndash; <configuration>-->
+<!--              <clientClass>org.apache.activemq.artemis.jms.example.KeycloakSecurityExample</clientClass>-->
+<!--            </configuration> &ndash;&gt;-->
+<!--          </execution>-->
+<!--          <execution>-->
+<!--            <id>stop</id>-->
+<!--            <goals>-->
+<!--              <goal>cli</goal>-->
+<!--            </goals>-->
+<!--            <configuration>-->
+<!--              <ignore>${noServer}</ignore>-->
+<!--              <args>-->
+<!--                <param>stop</param>-->
+<!--              </args>-->
+<!--            </configuration>-->
+<!--          </execution>-->
+<!--        </executions>-->
+<!--        <dependencies>-->
+<!--          &lt;!&ndash; <dependency>-->
+<!--            <groupId>org.apache.activemq.examples.broker</groupId>-->
+<!--            <artifactId>security-keycloak</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--          </dependency> &ndash;&gt;-->
+<!--          <dependency>-->
+<!--            <groupId>org.keycloak</groupId>-->
+<!--            <artifactId>keycloak-adapter-core</artifactId>-->
+<!--            <version>${version.org.keycloak}</version>-->
+<!--          </dependency>-->
+<!--          <dependency>-->
+<!--            <groupId>org.keycloak</groupId>-->
+<!--            <artifactId>keycloak-core</artifactId>-->
+<!--            <version>${version.org.keycloak}</version>-->
+<!--          </dependency>-->
+<!--          <dependency>-->
+<!--            <groupId>org.apache.httpcomponents</groupId>-->
+<!--            <artifactId>httpclient</artifactId>-->
+<!--            <version>${version.org.apache.httpcomponents}</version>-->
+<!--          </dependency>-->
+<!--        </dependencies>-->
+<!--      </plugin>-->
+<!--      <plugin>-->
+<!--        <groupId>org.codehaus.mojo</groupId>-->
+<!--        <artifactId>exec-maven-plugin</artifactId>-->
+<!--        <version>3.0.0</version>-->
+<!--        <executions>-->
+<!--          <execution>-->
+<!--            <id>run-keycloak</id>-->
+<!--            <phase>integration-test</phase>-->
+<!--            <goals>-->
+<!--              <goal>exec</goal>-->
+<!--            </goals>-->
+<!--            <configuration>-->
+<!--              <skip>${noServer}</skip>-->
+<!--              <async>true</async>-->
+<!--              <executable>./target/keycloak-${version.org.keycloak}/bin/standalone.sh</executable>-->
+<!--              <arguments>-->
+<!--                <argument>-Dkeycloak.migration.action=import</argument>-->
+<!--                <argument>-Dkeycloak.migration.provider=singleFile</argument>-->
+<!--                <argument>-Dkeycloak.migration.file=./src/test/resources/keycloak-realms/scenario-1-realm.json</argument>-->
+<!--              </arguments>-->
+<!--            </configuration>-->
+<!--          </execution>-->
+<!--          <execution>-->
+<!--            <id>stop-keycloak</id>-->
+<!--            <phase>verify</phase>-->
+<!--            <goals>-->
+<!--              <goal>exec</goal>-->
+<!--            </goals>-->
+<!--            <configuration>-->
+<!--              <skip>${noServer}</skip>-->
+<!--              <executable>./target/keycloak-${version.org.keycloak}/bin/jboss-cli.sh</executable>-->
+<!--              <arguments>-->
+<!--                <argument>&#45;&#45;connect</argument>-->
+<!--                <argument>command=:shutdown</argument>-->
+<!--              </arguments>-->
+<!--            </configuration>-->
+<!--          </execution>-->
+<!--        </executions>-->
+<!--      </plugin>-->
+<!--    </plugins>-->
+<!--  </build>-->
 </project>

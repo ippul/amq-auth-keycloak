@@ -1,4 +1,4 @@
-package com.redhat.amq.security.model;
+package org.apache.activemq.artemis.security.keycloak.model;
 
 import java.util.Map;
 import java.util.Optional;
@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum DestinationType {
-    JMS_QUEUE("JMS_QUEUE"),
-    JMS_TOPIC("JMS_TOPIC");
+    
+    AMQ_DESTINATION("AMQ_DESTINATION");
 
     private final String destinationType;
 

@@ -1,4 +1,4 @@
-package com.redhat.amq.security.model;
+package org.apache.activemq.artemis.security.keycloak.model;
 
 import java.util.Map;
 import java.util.Optional;
