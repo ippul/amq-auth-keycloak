@@ -72,6 +72,17 @@ public class KeycloakAuthzUtils {
 //    };
 
     public static Configuration initConfiguration() {
+        System.getenv().forEach((k,v)->LOGGER.info("Ket: {} value: {}", k, v));
+//        if("true".equals(System.getenv("trust.self.signed.certificates"))) {
+//            return new Configuration(configuration.getAuthServerUrl(),
+//                    configuration.getRealm(),
+//                    configuration.getResource(),
+//                    configuration.getCredentials(),
+//                    getHttpClient(configuration.getAuthServerUrl()));
+//        }
+//        return configuration;
+
+
         LOGGER.info("Searching for Configuration for Red Hat SSO integration in folder {}", System.getProperty("artemis.instance.etc"));
         final ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -93,20 +104,11 @@ public class KeycloakAuthzUtils {
                     }).filter(keycloakConfiguration -> keycloakConfiguration != null) //
                     .filter(keycloakConfiguration -> keycloakConfiguration.getCredentials().size() > 0) //
                     .findFirst() //
-                    .map(configuration -> {
-
-                        LOGGER.info("configuration AuthServerUrl -> {}", configuration.getRealm());
-                        LOGGER.info("configuration realm -> {}", configuration.getRealm());
-                        LOGGER.info("configuration Resource -> {}", configuration.getRealm());
-                        LOGGER.info("configuration Credentials -> {}", configuration.getRealm());
-                        LOGGER.info("configuration realm -> {}", configuration.getRealm());
-
-                        return new Configuration(configuration.getAuthServerUrl(),
+                    .map(configuration -> new Configuration(configuration.getAuthServerUrl(),
                             configuration.getRealm(),
                             configuration.getResource(),
                             configuration.getCredentials(),
-                            getHttpClient(configuration.getAuthServerUrl())
-                    );}
+                            getHttpClient(configuration.getAuthServerUrl()))
                     ) //
                     .get();
         } catch (IOException e) {
