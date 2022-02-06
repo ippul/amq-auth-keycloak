@@ -93,7 +93,21 @@ public class KeycloakAuthzUtils {
                     }).filter(keycloakConfiguration -> keycloakConfiguration != null) //
                     .filter(keycloakConfiguration -> keycloakConfiguration.getCredentials().size() > 0) //
                     .findFirst() //
-                    .map(buildConfigurationWithCustomHttpClient) //
+                    .map(configuration -> {
+
+                        LOGGER.info("configuration AuthServerUrl -> {}", configuration.getRealm());
+                        LOGGER.info("configuration realm -> {}", configuration.getRealm());
+                        LOGGER.info("configuration Resource -> {}", configuration.getRealm());
+                        LOGGER.info("configuration Credentials -> {}", configuration.getRealm());
+                        LOGGER.info("configuration realm -> {}", configuration.getRealm());
+
+                        return new Configuration(configuration.getAuthServerUrl(),
+                            configuration.getRealm(),
+                            configuration.getResource(),
+                            configuration.getCredentials(),
+                            getHttpClient(configuration.getAuthServerUrl())
+                    );}
+                    ) //
                     .get();
         } catch (IOException e) {
             LOGGER.error("Unable to fine configuration file for Red Hat SSO {}", e);
@@ -138,6 +152,9 @@ public class KeycloakAuthzUtils {
             for(Certificate cert : certs){
                 if(cert instanceof X509Certificate) {
                     X509Certificate certificateToAdd = (X509Certificate) cert;
+                    LOGGER.info("cert cleaned name: {}", certificateToAdd.getSubjectDN().getName()
+                            .replaceAll("CN=", "")
+                            .replaceAll("\\*", ""));
                     keyStore.setCertificateEntry(certificateToAdd.getSubjectDN().getName().replaceAll("CN=", "").replaceAll("\\*", ""), cert);
                 }
             }
@@ -145,6 +162,7 @@ public class KeycloakAuthzUtils {
             trustManagerFactory.init(keyStore);
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, trustManagerFactory.getTrustManagers(), null);
+            LOGGER.info("Http client correctly created...");
             return HttpClients.custom()
                     .setSSLContext(sslContext)
                     .build();
@@ -154,13 +172,16 @@ public class KeycloakAuthzUtils {
         return null;
     }
 
-    public static Function<Configuration, Configuration> buildConfigurationWithCustomHttpClient = (configuration) -> new Configuration(configuration.getAuthServerUrl(),
-            configuration.getRealm(),
-            configuration.getResource(),
-            configuration.getCredentials(),
-            getHttpClient(configuration.getAuthServerUrl()));
+//    public static Function<Configuration, Configuration> buildConfigurationWithCustomHttpClient = (configuration) -> new Configuration(configuration.getAuthServerUrl(),
+//            configuration.getRealm(),
+//            configuration.getResource(),
+//            configuration.getCredentials(),
+//            getHttpClient(configuration.getAuthServerUrl())
+//
+//    );
 
     public static Certificate[] getCertificates(final String host) throws IOException {
+        LOGGER.info("Finding certificates...");
         TrustManager[] trustAllCerts = new TrustManager[] {
                 new X509TrustManager() {
                     public java.security.cert.X509Certificate[] getAcceptedIssuers() {
@@ -183,6 +204,7 @@ public class KeycloakAuthzUtils {
         URL obj = new URL(host);
         HttpsURLConnection con =  (HttpsURLConnection) obj.openConnection();
         con.connect();
+        LOGGER.info("Returning founded certificates...");
         return con.getServerCertificates();
     }
 }
