@@ -4,12 +4,8 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.ssl.SSLContextBuilder;
 import org.keycloak.authorization.client.AuthorizationDeniedException;
 import org.keycloak.authorization.client.AuthzClient;
 import org.keycloak.authorization.client.Configuration;
@@ -21,15 +17,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.*;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.*;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-import java.util.function.Function;
+import java.util.Properties;
 
 public class KeycloakAuthzUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(KeycloakAuthzUtils.class);
@@ -45,44 +43,13 @@ public class KeycloakAuthzUtils {
         this.authzClient = AuthzClient.create(configuration);
     }
 
-
-
-//    public static Function<Configuration, Configuration> buildConfigurationWithCustomHttpClient = (configuration) -> {
-//        final PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
-//        connectionManager.setValidateAfterInactivity(10);
-//        connectionManager.setMaxTotal(10);
-//        SSLContextBuilder builder = new SSLContextBuilder();
-//        SSLConnectionSocketFactory sslsFactory = null;
-//        try {
-//            builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
-//            sslsFactory = new SSLConnectionSocketFactory(builder.build());
-//        } catch (NoSuchAlgorithmException e) {
-//            e.printStackTrace();
-//        } catch (KeyStoreException | KeyManagementException e) {
-//            e.printStackTrace();
-//        }
-//        CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsFactory)
-//                //.setConnectionManager(connectionManager)
-//                .build();
-//        return new Configuration(configuration.getAuthServerUrl(),
-//                configuration.getRealm(),
-//                configuration.getResource(),
-//                configuration.getCredentials(),
-//                httpclient);
-//    };
-
     public static Configuration initConfiguration() {
-        System.getenv().forEach((k,v)->LOGGER.info("Ket: {} value: {}", k, v));
-//        if("true".equals(System.getenv("trust.self.signed.certificates"))) {
-//            return new Configuration(configuration.getAuthServerUrl(),
-//                    configuration.getRealm(),
-//                    configuration.getResource(),
-//                    configuration.getCredentials(),
-//                    getHttpClient(configuration.getAuthServerUrl()));
-//        }
-//        return configuration;
-
-
+        final Properties prop = new Properties();
+        try (FileInputStream fis = new FileInputStream("/amq/extra/configmaps/amq-sso-plugin-config/amq-sso-plugin-config.properties")) {
+            prop.load(fis);
+        } catch (IOException ex) {
+            LOGGER.info("No /amq/extra/configmaps/amq-sso-plugin-config/amq-sso-plugin-config.properties found");
+        }
         LOGGER.info("Searching for Configuration for Red Hat SSO integration in folder {}", System.getProperty("artemis.instance.etc"));
         final ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -104,12 +71,16 @@ public class KeycloakAuthzUtils {
                     }).filter(keycloakConfiguration -> keycloakConfiguration != null) //
                     .filter(keycloakConfiguration -> keycloakConfiguration.getCredentials().size() > 0) //
                     .findFirst() //
-                    .map(configuration -> new Configuration(configuration.getAuthServerUrl(),
-                            configuration.getRealm(),
-                            configuration.getResource(),
-                            configuration.getCredentials(),
-                            getHttpClient(configuration.getAuthServerUrl()))
-                    ) //
+                    .map(configuration -> {
+                        if(prop!=null && "true".equals(prop.getProperty("trust.self.signed.certificates"))) {
+                            return new Configuration(configuration.getAuthServerUrl(),
+                                    configuration.getRealm(),
+                                    configuration.getResource(),
+                                    configuration.getCredentials(),
+                                    getHttpClient(configuration.getAuthServerUrl()));
+                        }
+                        return configuration;
+                    }) //
                     .get();
         } catch (IOException e) {
             LOGGER.error("Unable to fine configuration file for Red Hat SSO {}", e);
@@ -173,14 +144,6 @@ public class KeycloakAuthzUtils {
         }
         return null;
     }
-
-//    public static Function<Configuration, Configuration> buildConfigurationWithCustomHttpClient = (configuration) -> new Configuration(configuration.getAuthServerUrl(),
-//            configuration.getRealm(),
-//            configuration.getResource(),
-//            configuration.getCredentials(),
-//            getHttpClient(configuration.getAuthServerUrl())
-//
-//    );
 
     public static Certificate[] getCertificates(final String host) throws IOException {
         LOGGER.info("Finding certificates...");
