@@ -44,9 +44,10 @@ public class KeycloakAuthzUtils {
     }
 
     public static Configuration initConfiguration() {
-        final Properties prop = new Properties();
+        final Properties pluginProperties = new Properties();
         try (FileInputStream fis = new FileInputStream("/amq/extra/configmaps/amq-sso-plugin-config/amq-sso-plugin-config.properties")) {
-            prop.load(fis);
+            pluginProperties.load(fis);
+            LOGGER.info("trust.self.signed.certificates -> {}", pluginProperties.getProperty("trust.self.signed.certificates"));
         } catch (IOException ex) {
             LOGGER.info("No /amq/extra/configmaps/amq-sso-plugin-config/amq-sso-plugin-config.properties found");
         }
@@ -72,7 +73,7 @@ public class KeycloakAuthzUtils {
                     .filter(keycloakConfiguration -> keycloakConfiguration.getCredentials().size() > 0) //
                     .findFirst() //
                     .map(configuration -> {
-                        if(prop!=null && "true".equals(prop.getProperty("trust.self.signed.certificates"))) {
+                        if("true".equals(pluginProperties.getOrDefault("trust.self.signed.certificates", "false"))) {
                             return new Configuration(configuration.getAuthServerUrl(),
                                     configuration.getRealm(),
                                     configuration.getResource(),
