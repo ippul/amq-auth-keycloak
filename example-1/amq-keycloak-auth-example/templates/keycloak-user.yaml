@@ -4,10 +4,10 @@ metadata:
   name: {{ .Release.Namespace }}-user
 spec:
   user:
-    username: "cluppi"
-    firstName: "Claudio"
-    lastName: "Luppi"
-    email: "cluppi@redhat.com"
+    username: "ippul"
+    firstName: "myFirstname"
+    lastName: "myLastname"
+    email: "ippul@arandommail.com"
     enabled: True
     emailVerified: False
     realmRoles:
