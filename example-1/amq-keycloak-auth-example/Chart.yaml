@@ -1,0 +1,7 @@
+apiVersion: v2
+name: amq-keycloak-auth-example
+description: Keycloak AMQ authorization example
+
+type: application
+
+version: 1.0.0

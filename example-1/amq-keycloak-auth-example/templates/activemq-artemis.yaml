@@ -1,0 +1,20 @@
+apiVersion: broker.amq.io/v2alpha5
+kind: ActiveMQArtemis
+metadata:
+  name: ex-aao
+spec:
+  deploymentPlan:
+    extraMounts:
+      configMaps:
+        - amq-sso-plugin-config
+    image: placeholder
+    size: 1
+    requireLogin: true
+    persistenceEnabled: false
+    journalType: nio
+    messageMigration: false
+    jolokiaAgentEnabled: false
+    managementRBACEnabled: true
+    initImage: image-registry.openshift-image-registry.svc:5000/{{ .Release.Namespace }}/amq-init:latest
+  console:
+    expose: true

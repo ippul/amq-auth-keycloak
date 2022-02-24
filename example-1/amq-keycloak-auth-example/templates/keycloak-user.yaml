@@ -1,0 +1,22 @@
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakUser
+metadata:
+  name: {{ .Release.Namespace }}-user
+spec:
+  user:
+    username: "cluppi"
+    firstName: "Claudio"
+    lastName: "Luppi"
+    email: "cluppi@redhat.com"
+    enabled: True
+    emailVerified: False
+    realmRoles:
+      - "offline_access"
+    clientRoles:
+      account:
+        - "manage-account"
+      realm-management:
+        - "manage-users"
+  realmSelector:
+     matchLabels:
+      realm: amq-sso-realm

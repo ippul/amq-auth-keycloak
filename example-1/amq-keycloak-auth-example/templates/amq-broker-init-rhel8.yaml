@@ -1,0 +1,17 @@
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: amq-broker-init-rhel8
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - name: 0.4-12
+      annotations: null
+      from:
+        kind: DockerImage
+        name: 'registry.redhat.io/amq7/amq-broker-init-rhel8:0.4-12'
+      generation: 1
+      importPolicy: {}
+      referencePolicy:
+        type: Source

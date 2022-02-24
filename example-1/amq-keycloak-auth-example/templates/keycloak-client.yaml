@@ -1,0 +1,97 @@
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakClient
+metadata:
+  name: amq-broker
+  labels:
+    app: sso
+spec:
+  client:
+    defaultClientScopes:
+      - roles
+    enabled: true
+    clientAuthenticatorType: client-secret
+    clientId: amq-broker
+    name: amq-broker
+    publicClient: false
+    authorizationServicesEnabled: true
+    authorizationSettings:
+      allowRemoteResourceManagement: true
+      resources:
+        - attributes:
+            deleteDurableQueue:
+              "queue1_admin"
+            manage:
+              "queue1_admin"
+            createNonDurableQueue:
+              "queue1_admin"
+            send:
+              "queue1_admin"
+            deleteAddress:
+              "queue1_admin"
+            browse:
+              "queue1_admin"
+            createDurableQueue:
+              "queue1_admin"
+            deleteNonDurableQueue:
+              "queue1_admin"
+            createAddress:
+              "queue1_admin"
+            consume:
+              "queue1_admin"
+          displayName: jms.queue.queue1
+          name: jms.queue.queue1
+          ownerManagedAccess: false
+          type: AMQ_DESTINATION
+        - attributes:
+            deleteDurableQueue:
+              "queue2_admin"
+            manage:
+              "queue2_admin"
+            createNonDurableQueue:
+              "queue2_admin"
+            send:
+              "queue2_admin"
+            deleteAddress:
+              "queue2_admin"
+            browse:
+              "queue2_admin"
+            createDurableQueue:
+              "queue2_admin"
+            deleteNonDurableQueue:
+              "queue2_admin"
+            createAddress:
+              "queue2_admin"
+            consume:
+              "queue2_admin"
+          displayName: jms.queue.queue2
+          name: jms.queue.queue2
+          ownerManagedAccess: false
+          type: AMQ_DESTINATION
+    directAccessGrantsEnabled: true
+    protocol: "openid-connect"
+    serviceAccountsEnabled: true
+    standardFlowEnabled: false
+    secret: 4393af74-52c9-11ec-bf63-0242ac130002
+  roles:
+    - name: queue1_admin
+    - name: queue2_admin
+  realmSelector:
+     matchLabels:
+      realm: amq-sso-realm
+---
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakClient
+metadata:
+  name: amq-console
+  labels:
+    app: sso
+spec:
+  realmSelector:
+     matchLabels:
+      realm: amq-sso-realm
+  client:
+    enabled: true
+    clientId: amq-console
+    name: amq-console
+  roles:
+    - name: console_admin

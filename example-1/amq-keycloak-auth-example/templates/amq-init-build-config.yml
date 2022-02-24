@@ -1,0 +1,51 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: amq-init
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: amq-init:latest
+  successfulBuildsHistoryLimit: 2
+  failedBuildsHistoryLimit: 2
+  source:
+    dockerfile: |-
+      FROM registry.redhat.io/amq7/amq-broker-init-rhel8:0.4-12
+      USER root
+
+      RUN mkdir -p /amq/scripts/ &&\
+      echo $' \n\
+      echo #!/bin/sh \n\
+      # Custom authorization plugin \n\
+      echo "Adding custom Red Hat SSO security setting plugin." \n\
+      sed -i \':a;N;$!ba s|<security-settings>.*<\/security-settings>|<security-settings>\\n         <security-setting-plugin class-name=\"org.apache.activemq.artemis.security.keycloak.plugin.KeycloakSecuritySettingPlugin\"/>\\n      </security-settings>|\' /amq/init/config/amq-broker/etc/broker.xml \n\
+      # Adding java libraries for RH SSO integration \n\
+      echo "Adding needed java libraries" \n\
+      cp /amq/scripts/lib/* /amq/init/config/amq-broker/lib/ \n\
+      ' >> /amq/scripts/post-config.sh
+
+      ADD ./keycloak-authz-amq-security-1.0.0.jar /amq/scripts/lib/keycloak-authz-amq-security-1.0.0.jar
+      RUN curl -o /amq/scripts/lib/keycloak-authz-client-9.0.12.redhat-00002.jar -L https://maven.repository.redhat.com/ga/org/keycloak/keycloak-authz-client/9.0.12.redhat-00002/keycloak-authz-client-9.0.12.redhat-00002.jar
+      RUN ls -lat /amq/scripts/lib/
+
+      RUN chmod -R 777 /amq/scripts
+      RUN chmod -R 777 /amq/scripts/lib
+    images:
+    - from:
+        kind: ImageStreamTag
+        name: amq-auth-keycloak:latest
+      paths:
+      - sourcePath: /deployments/keycloak-authz-amq-security-1.0.0.jar
+        destinationDir: "."
+  strategy:
+    dockerStrategy:
+      from:
+        kind: ImageStreamTag
+        name: amq-broker-init-rhel8:0.4-12
+  triggers:
+  - type: ImageChange
+    imageChange:
+      from:
+        kind: "ImageStreamTag"
+        name: "amq-auth-keycloak:latest"

@@ -47,7 +47,7 @@ public class KeycloakAuthzUtils {
         final Properties pluginProperties = new Properties();
         try (FileInputStream fis = new FileInputStream("/amq/extra/configmaps/amq-sso-plugin-config/amq-sso-plugin-config.properties")) {
             pluginProperties.load(fis);
-            LOGGER.info("trust.self.signed.certificates -> {}", pluginProperties.getProperty("trust.self.signed.certificates"));
+            LOGGER.info("trust.self.signed.certificates: {}", pluginProperties.getProperty("trust.self.signed.certificates"));
         } catch (IOException ex) {
             LOGGER.info("No /amq/extra/configmaps/amq-sso-plugin-config/amq-sso-plugin-config.properties found");
         }

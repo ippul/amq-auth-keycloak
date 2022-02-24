@@ -1,0 +1,7 @@
+apiVersion: v2
+name: prepare-namespace
+description: Prepare namespace for Keycloak AMQ authorization example
+
+type: application
+
+version: 1.0.0

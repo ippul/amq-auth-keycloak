@@ -1,0 +1,73 @@
+kind: ActiveMQArtemisSecurity
+apiVersion: broker.amq.io/v1alpha1
+metadata:
+  name: mybroker-security
+spec:
+  loginModules:
+    keycloakLoginModules:
+        - name: rhsso-broker
+          moduleType: directAccess
+          configuration:
+            realm: amq-sso-realm
+            authServerUrl: https://keycloak-{{ .Release.Namespace }}.apps-crc.testing/auth
+            sslRequired: external
+            resource: amq-broker
+            credentials:
+              - key: secret
+                value: 4393af74-52c9-11ec-bf63-0242ac130002
+            confidentialPort: 0
+            useResourceRoleMappings: true
+            principalAttribute: "preferred_username"
+            disableTrustManager: true
+            verifyTokenAudience: false
+        - name: rhsso-console
+          moduleType: bearerToken
+          configuration:
+            realm: amq-sso-realm
+            resource: amq-console
+            authServerUrl: https://keycloak-{{ .Release.Namespace }}.apps-crc.testing/auth
+            principalAttribute: "preferred_username"
+            useResourceRoleMappings: true
+            sslRequired: external
+            verifyTokenAudience: false
+            confidentialPort: 0
+  securityDomains:
+    brokerDomain:
+      name: activemq
+      loginModules:
+      - name: rhsso-broker
+        flag: sufficient
+    consoleDomain:
+      name: console
+      loginModules:
+      - name: rhsso-console
+        flag: required
+  securitySettings:
+    management:
+      hawtioRoles:
+        - 'console_admin'
+      authorisation:
+        roleAccess:
+        - domain: 'org.apache.activemq.artemis'
+          accessList:
+          - method: 'list*'
+            roles:
+            - console_admin
+          - method: 'get*'
+            roles:
+            - console_admin
+          - method: 'is*'
+            roles:
+            - console_admin
+          - method: 'set*'
+            roles:
+            - console_admin
+          - method: 'browse*'
+            roles:
+            - console_admin
+          - method: 'count*'
+            roles:
+            - console_admin
+          - method: '*'
+            roles:
+            - console_admin

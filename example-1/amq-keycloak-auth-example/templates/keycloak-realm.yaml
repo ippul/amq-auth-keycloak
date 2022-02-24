@@ -1,0 +1,16 @@
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakRealm
+metadata:
+  name: amq-sso-realm
+  labels:
+    app: sso
+    realm: amq-sso-realm
+spec:
+  realm:
+    realm: amq-sso-realm
+    enabled: True
+    displayName: amq-sso-realm
+    passwordPolicy: hashIterations(100)
+  instanceSelector:
+    matchLabels:
+      app: sso
