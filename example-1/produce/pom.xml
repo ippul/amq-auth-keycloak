@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.activemq</groupId>
-  <artifactId>keycloak-authz-amq-security</artifactId>
+  <artifactId>produce</artifactId>
   <version>1.0.0</version>
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -73,13 +73,49 @@
       <artifactId>slf4j-jboss-logmanager</artifactId>
       <scope>provided</scope>
     </dependency>
-    <!-- Test dependencies -->
     <dependency>
       <groupId>org.jboss.eap</groupId>
       <artifactId>wildfly-jms-client-bom</artifactId>
       <version>${version.server.bom}</version>
       <type>pom</type>
-      <scope>test</scope>
     </dependency>
   </dependencies>
+  <build>
+      <plugins>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-assembly-plugin</artifactId>
+              <version>3.1.1</version>
+              <configuration>
+                  <descriptorRefs>
+                      <descriptorRef>jar-with-dependencies</descriptorRef>
+                  </descriptorRefs>
+                  <archive>
+                      <manifest>
+                          <mainClass>org.apache.activemq.artemis.Publish</mainClass>
+                      </manifest>
+                  </archive>
+              </configuration>
+              <executions>
+                  <execution>
+                      <id>make-assembly</id>
+                      <phase>package</phase>
+                      <goals>
+                          <goal>single</goal>
+                      </goals>
+                  </execution>
+              </executions>
+          </plugin>
+          <plugin>
+              <artifactId>maven-jar-plugin</artifactId>
+              <version>3.0.2</version>
+              <executions>
+                  <execution>
+                      <id>default-jar</id>
+                      <phase>none</phase>
+                  </execution>
+              </executions>
+          </plugin>
+      </plugins>
+  </build>
 </project>

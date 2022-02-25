@@ -10,6 +10,9 @@ spec:
     email: "ippul@arandommail.com"
     enabled: True
     emailVerified: False
+    credentials:
+      - type: "password"
+        value: "Pa$$w0rd"
     realmRoles:
       - "offline_access"
     clientRoles:
@@ -17,6 +20,8 @@ spec:
         - "manage-account"
       realm-management:
         - "manage-users"
+      amq-broker:
+        - "queue1_admin"
   realmSelector:
      matchLabels:
       realm: amq-sso-realm
