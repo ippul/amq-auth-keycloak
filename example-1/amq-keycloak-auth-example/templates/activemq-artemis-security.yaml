@@ -20,6 +20,7 @@ spec:
             principalAttribute: "preferred_username"
             disableTrustManager: true
             verifyTokenAudience: false
+            enableBasicAuth: true
         - name: rhsso-console
           moduleType: bearerToken
           configuration:
@@ -31,6 +32,7 @@ spec:
             sslRequired: external
             verifyTokenAudience: false
             confidentialPort: 0
+            enableBasicAuth: true
   securityDomains:
     brokerDomain:
       name: activemq

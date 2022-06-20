@@ -6,11 +6,11 @@ spec:
   lookupPolicy:
     local: false
   tags:
-    - name: 0.4-12
+    - name: 7.10-13
       annotations: null
       from:
         kind: DockerImage
-        name: 'registry.redhat.io/amq7/amq-broker-init-rhel8:0.4-12'
+        name: 'registry.redhat.io/amq7/amq-broker-init-rhel8:7.10-13'
       generation: 1
       importPolicy: {}
       referencePolicy:

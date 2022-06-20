@@ -6,7 +6,7 @@ $ helm --debug upgrade --install amq-keycloak-auth-example ./amq-keycloak-auth-e
 
 # Test
 ```
-$ oc oc port-forward svc/postgresql 5432
+$ oc port-forward svc/postgresql 5432
 ```
 ## Publish a message
 ```

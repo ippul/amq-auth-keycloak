@@ -11,7 +11,7 @@ spec:
   failedBuildsHistoryLimit: 2
   source:
     dockerfile: |-
-      FROM registry.redhat.io/amq7/amq-broker-init-rhel8:0.4-12
+      FROM registry.redhat.io/amq7/amq-broker-init-rhel8:7.10-13
       USER root
 
       RUN mkdir -p /amq/scripts/ &&\
@@ -42,7 +42,7 @@ spec:
     dockerStrategy:
       from:
         kind: ImageStreamTag
-        name: amq-broker-init-rhel8:0.4-12
+        name: amq-broker-init-rhel8:7.10-13
   triggers:
   - type: ImageChange
     imageChange:

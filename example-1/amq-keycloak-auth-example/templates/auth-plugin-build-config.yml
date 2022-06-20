@@ -25,7 +25,7 @@ spec:
     type: Git
     git:
       uri: 'https://github.com/ippul/amq-auth-keycloak.git'
-    contextDir: /
+    contextDir: /keycloak-authz-amq-security
   triggers:
     - type: Generic
       generic:
